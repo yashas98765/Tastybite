@@ -7,8 +7,13 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    // In dev, Vite proxies /socket.io to localhost:5000
-    const newSocket = io({
+    // When deployed (e.g. on Vercel), connect to the Render backend URL
+    // In local dev, Vite proxies /socket.io to localhost:5000
+    const socketEndpoint = import.meta.env.VITE_API_URL
+      ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '')
+      : undefined;
+
+    const newSocket = io(socketEndpoint, {
       transports: ['websocket', 'polling']
     });
 

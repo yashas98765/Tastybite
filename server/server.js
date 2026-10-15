@@ -31,9 +31,24 @@ const server = http.createServer(app);
 // Initialize Socket.io
 initSocket(server);
 
-// Middleware
+// CORS configuration: supports localhost, custom CLIENT_URL, and Vercel domains
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',').map((s) => s.trim().replace(/\/+$/, ''))
+  : ['http://localhost:5173'];
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (
+      allowedOrigins.includes(origin) ||
+      allowedOrigins.includes('*') ||
+      origin.includes('vercel.app') ||
+      origin.includes('localhost')
+    ) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
   credentials: true
 }));
 app.use(express.json());

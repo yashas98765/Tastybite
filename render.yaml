@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: tastybite-backend
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: CLIENT_URL
+        value: https://tastybite.vercel.app
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRE
+        value: 30d
+      - key: RAZORPAY_KEY_ID
+        value: rzp_test_TNgbXItY3fibBE
+      - key: RAZORPAY_KEY_SECRET
+        value: osNu1DGCZ6uPlN20qgMvtJv6
+      - key: WHATSAPP_SUPPORT_NUMBER
+        value: "917619290168"
+      - key: CONTACT_PHONE
+        value: "+91 76192 90168"

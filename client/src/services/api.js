@@ -1,7 +1,14 @@
 import axios from 'axios';
 
+// When deployed (e.g. on Vercel), point to the backend URL (e.g. https://tastybite-server.onrender.com)
+// When running locally, defaults to '/api' which Vite proxies to localhost:5000
+const rawBaseUrl = import.meta.env.VITE_API_URL;
+const baseURL = rawBaseUrl
+  ? (rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl.replace(/\/+$/, '')}/api`)
+  : '/api';
+
 const API = axios.create({
-  baseURL: '/api',
+  baseURL,
   headers: {
     'Content-Type': 'application/json'
   }
