@@ -5,6 +5,7 @@ import API from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { formatCurrency, formatDateTime, getOrderStatusBadge } from '../utils/formatters';
+import { downloadInvoice } from '../utils/downloadHelper';
 
 const OrderHistory = () => {
   const navigate = useNavigate();
@@ -51,9 +52,8 @@ const OrderHistory = () => {
     }
   };
 
-  const handleDownloadInvoice = (orderId) => {
-    const token = localStorage.getItem('tastybite_token');
-    window.open(`/api/orders/${orderId}/invoice?token=${token}`, '_blank');
+  const handleDownloadInvoice = (orderId, orderNumber) => {
+    downloadInvoice(orderId, orderNumber || orderId);
   };
 
   if (!isAuthenticated) {
@@ -159,7 +159,7 @@ const OrderHistory = () => {
                   </button>
 
                   <button
-                    onClick={() => handleDownloadInvoice(order._id)}
+                    onClick={() => handleDownloadInvoice(order._id, order.orderNumber)}
                     className="p-2 rounded-xl text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
                     title="Download Tax Invoice PDF"
                   >

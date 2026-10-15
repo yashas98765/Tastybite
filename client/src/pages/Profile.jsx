@@ -37,6 +37,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import API from '../services/api';
 import { formatCurrency } from '../utils/formatters';
+import { downloadInvoice } from '../utils/downloadHelper';
 
 const PRESET_AVATARS = [
   'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
@@ -827,15 +828,14 @@ const Profile = () => {
                       >
                         Live Tracking
                       </Link>
-                      <a
-                        href={`http://localhost:5000/api/orders/${ord._id}/invoice`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs px-3.5 py-2 rounded-xl border border-stone-200 flex items-center gap-1.5 transition-colors"
+                      <button
+                        type="button"
+                        onClick={() => downloadInvoice(ord._id, ord.orderNumber)}
+                        className="bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs px-3.5 py-2 rounded-xl border border-stone-200 flex items-center gap-1.5 transition-colors cursor-pointer"
                       >
-                        <FileText className="w-3.5 h-3.5" />
+                        <FileText className="w-3.5 h-3.5 text-orange-600" />
                         Tax Invoice PDF
-                      </a>
+                      </button>
                     </div>
                   </div>
                 </div>

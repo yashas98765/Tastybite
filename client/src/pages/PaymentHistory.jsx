@@ -4,6 +4,7 @@ import { CreditCard, Receipt, Download, ShieldCheck, CheckCircle2, AlertCircle }
 import API from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { formatCurrency, formatDateTime, getPaymentStatusBadge } from '../utils/formatters';
+import { downloadReceipt } from '../utils/downloadHelper';
 
 const PaymentHistory = () => {
   const { isAuthenticated } = useAuth();
@@ -32,9 +33,8 @@ const PaymentHistory = () => {
     }
   };
 
-  const handleDownloadReceipt = (paymentId) => {
-    const token = localStorage.getItem('tastybite_token');
-    window.open(`/api/payments/${paymentId}/receipt?token=${token}`, '_blank');
+  const handleDownloadReceipt = (paymentId, transactionId) => {
+    downloadReceipt(paymentId, transactionId || 'Receipt');
   };
 
   if (!isAuthenticated) {
@@ -110,7 +110,7 @@ const PaymentHistory = () => {
                   {formatCurrency(p.amount)}
                 </span>
                 <button
-                  onClick={() => handleDownloadReceipt(p._id)}
+                  onClick={() => handleDownloadReceipt(p._id, p.transactionId)}
                   className="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold px-3.5 py-2 rounded-xl border border-emerald-200 transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <Receipt className="w-3.5 h-3.5 text-emerald-600" />

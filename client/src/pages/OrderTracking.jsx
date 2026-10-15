@@ -26,6 +26,7 @@ import API from '../services/api';
 import { useSocket } from '../context/SocketContext';
 import { formatCurrency, formatDateTime } from '../utils/formatters';
 import LiveGpsMap from '../components/LiveGpsMap';
+import { downloadInvoice, downloadReceipt } from '../utils/downloadHelper';
 
 const OrderTracking = () => {
   const { orderId } = useParams();
@@ -121,16 +122,27 @@ const OrderTracking = () => {
     return () => clearInterval(interval);
   }, [autoSimulate, order?.orderStatus, speed, orderId, advancing]);
 
-  const handleDownloadInvoice = () => {
-    const token = localStorage.getItem('tastybite_token');
-    window.open(`/api/orders/${orderId}/invoice?token=${token}`, '_blank');
+  const [downloadingInvoice, setDownloadingInvoice] = useState(false);
+  const [downloadingReceipt, setDownloadingReceipt] = useState(false);
+
+  const handleDownloadInvoice = async () => {
+    try {
+      setDownloadingInvoice(true);
+      await downloadInvoice(orderId, order?.orderNumber || orderId);
+    } finally {
+      setDownloadingInvoice(false);
+    }
   };
 
-  const handleDownloadReceipt = () => {
+  const handleDownloadReceipt = async () => {
     if (order?.payment?._id || order?.payment) {
       const paymentId = order.payment._id || order.payment;
-      const token = localStorage.getItem('tastybite_token');
-      window.open(`/api/payments/${paymentId}/receipt?token=${token}`, '_blank');
+      try {
+        setDownloadingReceipt(true);
+        await downloadReceipt(paymentId, order.payment?.transactionId || order.orderNumber);
+      } finally {
+        setDownloadingReceipt(false);
+      }
     }
   };
 
@@ -465,25 +477,31 @@ const OrderTracking = () => {
 
             <button
               onClick={handleDownloadInvoice}
-              className="w-full bg-stone-50 hover:bg-stone-100 text-stone-800 text-xs font-bold p-3 rounded-xl border border-stone-200 flex items-center justify-between transition-colors cursor-pointer"
+              disabled={downloadingInvoice}
+              className="w-full bg-stone-50 hover:bg-stone-100 text-stone-800 text-xs font-bold p-3 rounded-xl border border-stone-200 flex items-center justify-between transition-colors cursor-pointer disabled:opacity-60"
             >
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-orange-600" />
                 <span>Tax Invoice PDF (INV-{order.orderNumber})</span>
               </div>
-              <span className="text-orange-600 text-[11px]">Download</span>
+              <span className="text-orange-600 text-[11px] font-semibold">
+                {downloadingInvoice ? 'Downloading...' : 'Download'}
+              </span>
             </button>
 
             {order.payment && (
               <button
                 onClick={handleDownloadReceipt}
-                className="w-full bg-stone-50 hover:bg-stone-100 text-stone-800 text-xs font-bold p-3 rounded-xl border border-stone-200 flex items-center justify-between transition-colors cursor-pointer"
+                disabled={downloadingReceipt}
+                className="w-full bg-stone-50 hover:bg-stone-100 text-stone-800 text-xs font-bold p-3 rounded-xl border border-stone-200 flex items-center justify-between transition-colors cursor-pointer disabled:opacity-60"
               >
                 <div className="flex items-center gap-2">
                   <Receipt className="w-4 h-4 text-emerald-600" />
                   <span>Payment Receipt PDF</span>
                 </div>
-                <span className="text-emerald-600 text-[11px]">Download</span>
+                <span className="text-emerald-600 text-[11px] font-semibold">
+                  {downloadingReceipt ? 'Downloading...' : 'Download'}
+                </span>
               </button>
             )}
 
