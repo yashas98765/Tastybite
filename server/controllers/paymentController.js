@@ -4,7 +4,7 @@ const User = require('../models/User');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const { generatePaymentReceiptPDF } = require('../services/pdfService');
-const { sendPaymentReceiptEmail } = require('../services/emailService');
+const { sendPaymentReceiptEmail, sendOrderConfirmationEmail } = require('../services/emailService');
 const { emitOrderStatusUpdate } = require('../services/socketService');
 
 // Initialize Razorpay instance helper
@@ -109,6 +109,7 @@ exports.processPayment = async (req, res, next) => {
 
     // Generate receipt and send email in background
     const recipientUser = req.user || order.user;
+    sendOrderConfirmationEmail(order, recipientUser).catch(err => console.warn('Order confirmation email error:', err.message));
     generatePaymentReceiptPDF(payment, order, recipientUser)
       .then(receiptPdfBuffer => {
         sendPaymentReceiptEmail(payment, order, recipientUser, receiptPdfBuffer);
@@ -363,10 +364,9 @@ exports.verifyRazorpayPayment = async (req, res, next) => {
 
     // Async receipt generation and email dispatch
     try {
-      generatePaymentReceiptPDF(payment, order, req.user).catch(err => console.error('PDF error:', err));
-      if (req.user && req.user.email) {
-        sendPaymentReceiptEmail(payment, order, req.user).catch(err => console.error('Email error:', err));
-      }
+      const recipientUser = req.user || order.user;
+      sendOrderConfirmationEmail(order, recipientUser).catch(err => console.warn('[Razorpay Order Email Error]:', err.message));
+      sendPaymentReceiptEmail(payment, order, recipientUser).catch(err => console.warn('[Razorpay Receipt Email Error]:', err.message));
     } catch (e) {
       console.error('Non-blocking receipt/email error:', e);
     }

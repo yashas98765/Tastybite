@@ -227,7 +227,10 @@ const sendOrderConfirmationEmail = async (order, user, invoicePdfBuffer = null, 
       { text: 'Track Your Live Order', url: `${clientUrl}/order/track/${order._id}` }
     );
 
-    const recipient = user?.email || order.deliveryAddress?.email || process.env.EMAIL_USER;
+    let recipient = user?.email || order.deliveryAddress?.email;
+    if (!recipient || recipient.includes('@tastybite.com') || recipient.includes('@example.com')) {
+      recipient = process.env.EMAIL_USER || recipient || 'yashas.s.h2601@gmail.com';
+    }
 
     return sendEmail({
       to: recipient,
@@ -300,7 +303,10 @@ const sendOrderStatusEmail = async (order, user, newStatus) => {
       { text: 'View Live Real-Time Tracking', url: `${clientUrl}/order/track/${order._id}` }
     );
 
-    const recipient = user?.email || order.deliveryAddress?.email || process.env.EMAIL_USER;
+    let recipient = user?.email || order.deliveryAddress?.email;
+    if (!recipient || recipient.includes('@tastybite.com') || recipient.includes('@example.com')) {
+      recipient = process.env.EMAIL_USER || recipient || 'yashas.s.h2601@gmail.com';
+    }
 
     return sendEmail({
       to: recipient,
@@ -412,7 +418,10 @@ const sendPaymentReceiptEmail = async (arg1, arg2, user, receiptPdfBuffer = null
       { text: 'View Payment History', url: `${clientUrl}/payment-history` }
     );
 
-    const recipient = user?.email || order?.deliveryAddress?.email || process.env.EMAIL_USER;
+    let recipient = user?.email || order?.deliveryAddress?.email;
+    if (!recipient || recipient.includes('@tastybite.com') || recipient.includes('@example.com')) {
+      recipient = process.env.EMAIL_USER || recipient || 'yashas.s.h2601@gmail.com';
+    }
 
     return sendEmail({
       to: recipient,

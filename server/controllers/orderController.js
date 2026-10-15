@@ -123,9 +123,10 @@ exports.createOrder = async (req, res, next) => {
       ]
     });
 
-    if (paymentMethod === 'COD') {
-      sendOrderConfirmationEmail(order, req.user).catch(err => console.warn('COD order confirmation email error:', err.message));
-    }
+    // Send order confirmation email with attached invoice
+    sendOrderConfirmationEmail(order, req.user).catch((err) =>
+      console.warn('Order confirmation email error:', err.message)
+    );
 
     res.status(201).json({
       success: true,
